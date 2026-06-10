@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Pre-commit anti-drift surface — version-controlled (enable with: git config core.hooksPath tools/githooks).
+#
+# Runs the FAST mechanical gate (tools/verify.sh) and PRINTS drift at every commit, so a new unindexed file
+# / stale default / broken link can't silently accumulate. NON-BLOCKING by default: drift = a human decides;
+# for a blocking gate use `tools/verify.sh --strict` in CI.
+#
+# NB (FAILURE-MODES F21): verify.sh reads the WORKING TREE, not the staged index. With unstaged tracked
+# changes (a partial `git add`) this report may not match the exact committed snapshot. For a blocking gate,
+# stash-isolate first (git stash -k); for this advisory hook the caveat below is the deliberate tradeoff.
+root="$(git rev-parse --show-toplevel)"
+out=$(bash "$root/tools/verify.sh" 2>&1)
+echo "$out"
+if ! git diff --quiet 2>/dev/null; then
+  echo "ℹ️  NB: unstaged changes present — verify checked the working tree, not the exact staged commit."
+fi
+if printf '%s' "$out" | grep -q '✗'; then
+  echo "⚠️  verify.sh reported HARD drift (✗) above — review before you push (commit still allowed)."
+elif printf '%s' "$out" | grep -q '!'; then
+  echo "ℹ️  verify.sh noted drift warnings (!) above — wire them in or confirm intentional."
+fi
+exit 0
