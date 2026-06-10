@@ -1,6 +1,6 @@
 # Durable Knowledge System
 
-A small, self-checking memory discipline for AI coding agents (Claude Code, or anything that reads your repo's docs). It keeps the agent's committed knowledge in sync with the actual code over time, and it tests its own checks so they don't quietly stop working.
+Think of it as a linter for the docs and rules your AI coding agent reads (Claude Code, or anything that reads your repo's docs). It keeps that committed knowledge in sync with the actual code, and, unlike a normal linter, it red-teams its own checks and proves each one actually fires, so the gate can't quietly go blind.
 
 > There are two different "AI memory" problems, and most tools only solve one.
 >
@@ -68,6 +68,7 @@ The checks try hard not to cry wolf. A gate that fires on normal, fine states ju
 
 ## What it isn't
 
+- Not a replacement for your code linter. It is lint-like, but pointed at the docs and rules your agent reads, the layer eslint/ruff/shellcheck never check.
 - Not a memory or recall store. Pair it with one (claude-mem, a knowledge-graph, an MCP memory server).
 - Not an LLM reviewing your code. The gate is plain grep and glob, so it's fast, deterministic, and cheap enough to run on every commit.
 - Not a framework. It's about three short shell scripts and a way of writing your docs. Read them, adapt them.
